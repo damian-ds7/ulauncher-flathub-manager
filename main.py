@@ -23,7 +23,7 @@ RESULTS_LIMIT_MIN = 2
 RESULTS_LIMIT_DEFAULT = 6
 RESULTS_LIMIT_MAX = 20
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-SCRIPT_PATH = os.path.join(SCRIPT_DIR, "install-flatpak.sh")
+SCRIPT_PATH = os.path.join(SCRIPT_DIR, "flatpak-helper.sh")
 
 logger = logging.getLogger(__name__)
 executor = ThreadPoolExecutor(max_workers=6)
