@@ -1,0 +1,25 @@
+{
+    "required_api_version": "2",
+    "name": "Flathub Search",
+    "description": "Browse and install Flathub apps instantly",
+    "developer_name": "damian-ds7",
+    "icon": "images/icon.png",
+    "options": {
+        "query_debounce": 1
+    },
+    "preferences": [
+        {
+            "id": "flathub_kw",
+            "type": "keyword",
+            "name": "Flathub search",
+            "default_value": "fh"
+        },
+        {
+            "id": "results_limit",
+            "type": "input",
+            "name": "Max number results to show",
+            "description": "Enter the maximum number of matching search results to show",
+            "default_value": 6
+        }
+    ]
+}
