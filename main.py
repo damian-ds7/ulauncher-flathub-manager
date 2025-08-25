@@ -2,6 +2,7 @@ import hashlib
 import json
 import logging
 import os
+import subprocess
 import tempfile
 import urllib.request
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -102,6 +103,13 @@ def search_flathub(
         return []
 
 
+def is_installed(app_id: str) -> bool:
+    result = subprocess.run(
+        ["flatpak", "info", app_id],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return not result.returncode
 def flathub_app_2_result_item(apps: list[FlathubApp]) -> list[ExtensionResultItem]:
     items: list[ExtensionResultItem] = []
     for app in apps:
