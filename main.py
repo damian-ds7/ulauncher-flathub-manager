@@ -110,6 +110,40 @@ def is_installed(app_id: str) -> bool:
         stderr=subprocess.DEVNULL,
     )
     return not result.returncode
+
+
+def get_result_actions(app: FlathubApp) -> list[ExtensionResultItem]:
+    if is_installed(app.flatpak_app_id):
+        logger.info(f"Generating actions for installed app - {app.name}")
+        return [
+            ExtensionResultItem(
+                icon="images/update.jpg",
+                name="Update",
+                on_enter=RunScriptAction(
+                    f"{SCRIPT_PATH} update {app.flatpak_app_id} {app.name}"
+                ),
+            ),
+            ExtensionResultItem(
+                icon="images/remove.png",
+                name="Uninstall",
+                on_enter=RunScriptAction(
+                    f"{SCRIPT_PATH} uninstall {app.flatpak_app_id} {app.name}"
+                ),
+            ),
+        ]
+    else:
+        logger.info(f"Generating actions for non-installed app - {app.name}")
+        return [
+            ExtensionResultItem(
+                icon="images/download.jpg",
+                name="Install",
+                on_enter=RunScriptAction(
+                    f"{SCRIPT_PATH} install {app.flatpak_app_id} {app.name}"
+                ),
+            )
+        ]
+
+
 def flathub_app_2_result_item(apps: list[FlathubApp]) -> list[ExtensionResultItem]:
     items: list[ExtensionResultItem] = []
     for app in apps:
