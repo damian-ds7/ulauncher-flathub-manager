@@ -13,6 +13,7 @@ from ulauncher.api.client.EventListener import EventListener
 from ulauncher.api.client.Extension import Extension
 from ulauncher.api.shared.action.HideWindowAction import HideWindowAction
 from ulauncher.api.shared.action.RenderResultListAction import RenderResultListAction
+from ulauncher.api.shared.action.RunScriptAction import RunScriptAction
 from ulauncher.api.shared.event import ItemEnterEvent, KeywordQueryEvent
 from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
 
@@ -20,6 +21,8 @@ ICON_CACHE_DIR = os.path.join(tempfile.gettempdir(), "ulauncher-flathub-icons")
 RESULTS_LIMIT_MIN = 2
 RESULTS_LIMIT_DEFAULT = 6
 RESULTS_LIMIT_MAX = 20
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+SCRIPT_PATH = os.path.join(SCRIPT_DIR, "install-flatpak.sh")
 
 logger = logging.getLogger(__name__)
 executor = ThreadPoolExecutor(max_workers=6)
@@ -122,7 +125,9 @@ def flathub_app_2_result_item(apps: list[FlathubApp]) -> list[ExtensionResultIte
             ExtensionResultItem(
                 icon=local_icon,
                 name=app.name,
-                on_enter=HideWindowAction(),
+                on_enter=RunScriptAction(
+                    f"{SCRIPT_PATH} {app.flatpak_app_id} {app.name}"
+                ),
             )
         )
     return items
