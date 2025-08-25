@@ -11,16 +11,16 @@ if flatpak "$ACTION" -y "$APP_ID" >/dev/null; then
     MSG="$APP_NAME was ${ACTION}ed successfully"
 
     if [[ "$ACTION" == "install" || "$ACTION" == "update" ]]; then
-        choice=$(notify-send -a "Flathub Search" -i "$ICON" \
+        choice=$(notify-send -a "Flathub Manager" -i "$ICON" \
             "$MSG" -A launch=Launch)
 
         if [[ "$choice" == "launch" ]]; then
             flatpak run "$APP_ID" >/dev/null
         fi
     else
-        notify-send -a "Flathub Search" -i "$ICON" "$MSG"
+        notify-send -a "Flathub Manager" -i "$ICON" "$MSG"
     fi
 else
-    notify-send -a "Flathub Search" -i "$ICON" \
+    notify-send -a "Flathub Manager" -i "$ICON" \
         "Failed to $ACTION $APP_NAME"
 fi
