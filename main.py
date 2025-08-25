@@ -105,15 +105,15 @@ def search_flathub(
 def flathub_app_2_result_item(apps: list[FlathubApp]) -> list[ExtensionResultItem]:
     items: list[ExtensionResultItem] = []
     for app in apps:
-        local_icon = "images/icon.png"
+        icon = "images/icon.png"
         if app.icon_future:
             try:
-                local_icon = app.icon_future.result(timeout=0.1)  # short wait
+                icon = app.icon_future.result(timeout=0.1)
             except Exception:
                 pass
         items.append(
             ExtensionResultItem(
-                icon=local_icon,
+                icon=icon,
                 name=app.name,
                 on_enter=RunScriptAction(
                     f"{SCRIPT_PATH} {app.flatpak_app_id} {app.name}"
