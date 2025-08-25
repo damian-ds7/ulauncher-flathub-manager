@@ -75,16 +75,6 @@ def download_icon(url: str, timeout: int = 5) -> str:
     return path
 
 
-def fetch_icons_parallel(apps: list[FlathubApp]) -> dict[str, str]:
-    with ThreadPoolExecutor(max_workers=6) as executor:
-        return {
-            app.icon_desktop_url: path
-            for app, path in zip(
-                apps, executor.map(lambda a: download_icon(a.icon_desktop_url), apps)
-            )
-        }
-
-
 def search_flathub(
     query: str, results_limit: int, timeout: int = 5
 ) -> list[FlathubApp]:
