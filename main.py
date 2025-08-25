@@ -157,9 +157,7 @@ def flathub_app_2_result_item(apps: list[FlathubApp]) -> list[ExtensionResultIte
             ExtensionResultItem(
                 icon=icon,
                 name=app.name,
-                on_enter=RunScriptAction(
-                    f"{SCRIPT_PATH} {app.flatpak_app_id} {app.name}"
-                ),
+                on_enter=RenderResultListAction(get_result_actions(app)),
             )
         )
     return items
