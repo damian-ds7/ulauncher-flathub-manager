@@ -1,9 +1,14 @@
+import hashlib
 import json
 import logging
+import os
+import tempfile
 import urllib.request
+from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import Optional
 
+import requests
 from ulauncher.api.client.EventListener import EventListener
 from ulauncher.api.client.Extension import Extension
 from ulauncher.api.shared.action.HideWindowAction import HideWindowAction
@@ -11,9 +16,13 @@ from ulauncher.api.shared.action.RenderResultListAction import RenderResultListA
 from ulauncher.api.shared.event import ItemEnterEvent, KeywordQueryEvent
 from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
 
+ICON_CACHE_DIR = os.path.join(tempfile.gettempdir(), "ulauncher-flathub-icons")
 RESULTS_LIMIT_MIN = 2
 RESULTS_LIMIT_DEFAULT = 6
 RESULTS_LIMIT_MAX = 20
+
+logger = logging.getLogger(__name__)
+executor = ThreadPoolExecutor(max_workers=6)
 
 
 class ShortQueryException(Exception):
@@ -21,14 +30,12 @@ class ShortQueryException(Exception):
         super().__init__(*args)
 
 
-logger = logging.getLogger(__name__)
-
-
 @dataclass
 class FlathubApp:
     flatpak_app_id: str
     name: str
     icon_desktop_url: str
+    icon_future: Optional[Future] = None
 
     @classmethod
     def from_dict(cls, data: dict) -> Optional["FlathubApp"]:
@@ -46,6 +53,35 @@ class FlathubApp:
         return [app for item in data_list if (app := cls.from_dict(item)) is not None]
 
 
+def icon_path(url: str) -> str:
+    os.makedirs(ICON_CACHE_DIR, exist_ok=True)
+    fname = hashlib.sha256(url.encode()).hexdigest() + ".png"
+    return os.path.join(ICON_CACHE_DIR, fname)
+
+
+def download_icon(url: str, timeout: int = 5) -> str:
+    path = icon_path(url)
+    if not os.path.exists(path):
+        try:
+            r = requests.get(url, timeout=timeout)
+            if r.ok:
+                with open(path, "wb") as f:
+                    f.write(r.content)
+        except Exception:
+            return "images/icon.png"  # fallback if request fails
+    return path
+
+
+def fetch_icons_parallel(apps: list[FlathubApp]) -> dict[str, str]:
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        return {
+            app.icon_desktop_url: path
+            for app, path in zip(
+                apps, executor.map(lambda a: download_icon(a.icon_desktop_url), apps)
+            )
+        }
+
+
 def search_flathub(
     query: str, results_limit: int, timeout: int = 5
 ) -> list[FlathubApp]:
@@ -60,7 +96,13 @@ def search_flathub(
         with urllib.request.urlopen(url, timeout=timeout) as response:
             if response.status == 200:
                 data: list[dict[str, str]] = json.loads(response.read())
-                return FlathubApp.from_list(data[:results_limit])
+                apps = FlathubApp.from_list(data[:results_limit])
+                for app in apps:
+                    app.icon_future = executor.submit(
+                        download_icon, app.icon_desktop_url
+                    )
+                return apps
+
             return []
     except Exception as e:
         logger.error(f"Something went wrong {e}")
@@ -69,18 +111,20 @@ def search_flathub(
 
 def flathub_app_2_result_item(apps: list[FlathubApp]) -> list[ExtensionResultItem]:
     items: list[ExtensionResultItem] = []
-    logger.info("Creating entry list")
     for app in apps:
-        logger.info(f"Adding {app.name} entry")
+        local_icon = "images/icon.png"
+        if app.icon_future:
+            try:
+                local_icon = app.icon_future.result(timeout=0.1)  # short wait
+            except Exception:
+                pass
         items.append(
             ExtensionResultItem(
-                icon="images/icon.png",
+                icon=local_icon,
                 name=app.name,
                 on_enter=HideWindowAction(),
             )
         )
-    logger.info("Extension result items created")
-    logger.info(items)
     return items
 
 
