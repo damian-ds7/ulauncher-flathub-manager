@@ -13,6 +13,7 @@ import requests
 from ulauncher.api.client.EventListener import EventListener
 from ulauncher.api.client.Extension import Extension
 from ulauncher.api.shared.action.HideWindowAction import HideWindowAction
+from ulauncher.api.shared.action.OpenUrlAction import OpenUrlAction
 from ulauncher.api.shared.action.RenderResultListAction import RenderResultListAction
 from ulauncher.api.shared.action.RunScriptAction import RunScriptAction
 from ulauncher.api.shared.event import KeywordQueryEvent
@@ -140,7 +141,14 @@ def get_result_actions(app: FlathubApp) -> list[ExtensionResultItem]:
                 on_enter=RunScriptAction(
                     f"{SCRIPT_PATH} install {app.flatpak_app_id} {app.name}"
                 ),
-            )
+            ),
+            ExtensionResultItem(
+                icon="images/icon.png",
+                name="Open in browser",
+                on_enter=OpenUrlAction(
+                    f"https://flathub.org/apps/{app.flatpak_app_id}"
+                ),
+            ),
         ]
 
 

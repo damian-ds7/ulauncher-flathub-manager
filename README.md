@@ -55,5 +55,3 @@ Notifications indicate whether an operation completed successfully or failed.
 ## TODO
 
 - Add the ability to browse only installed applications
-- Open app page in web browser
-
