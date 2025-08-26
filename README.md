@@ -31,8 +31,6 @@ This extension requires [libnotify](https://gitlab.gnome.org/GNOME/libnotify), a
   <sub><em>Application is not yet installed</em></sub>
 </p>
 
----
-
 ## Notifications
 
 Notifications indicate whether an operation completed successfully or failed.
@@ -54,8 +52,6 @@ Notifications indicate whether an operation completed successfully or failed.
   <br/>
   <sub><em>Remove notification</em></sub>
 </p>
-
----
 
 ## TODO
 
