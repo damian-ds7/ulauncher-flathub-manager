@@ -9,8 +9,7 @@
 
 ## Requirements
 
-This extension requires [libnotify](https://gitlab.gnome.org/GNOME/libnotify),  
-as it uses the `notify-send` command to display desktop notifications.
+This extension requires [libnotify](https://gitlab.gnome.org/GNOME/libnotify), as it uses the `notify-send` command to display desktop notifications.
 
 ## Demo
 
@@ -61,3 +60,4 @@ Notifications indicate whether an operation completed successfully or failed.
 ## TODO
 
 - Add the ability to browse only installed applications
+
