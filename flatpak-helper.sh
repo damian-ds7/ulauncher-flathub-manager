@@ -1,4 +1,4 @@
-ctr#!/usr/bin/env bash
+#!/usr/bin/env bash
 
 SCRIPT_PATH="$(dirname "$0")"
 ACTION=$1   # install | uninstall | update
