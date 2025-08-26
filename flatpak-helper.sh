@@ -8,7 +8,12 @@ APP_NAME=$3
 ICON="$SCRIPT_PATH/images/icon.png"
 
 if flatpak "$ACTION" -y "$APP_ID" >/dev/null; then
-    MSG="$APP_NAME was ${ACTION}ed successfully"
+    if [[ "$ACTION" == "update" ]]; then
+        MSG="$APP_NAME was updated successfully"
+    else
+        MSG="$APP_NAME was ${ACTION}ed successfully"
+    fi
+
 
     if [[ "$ACTION" == "install" || "$ACTION" == "update" ]]; then
         choice=$(notify-send -a "Flathub Manager" -i "$ICON" \
