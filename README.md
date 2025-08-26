@@ -5,7 +5,6 @@
 - Search Flathub apps directly from Ulauncher
 - Install, update, and remove Flatpak applications
 - Receive desktop notifications for each operation
-- Stage partial installs/updates with optional launch button
 
 ## Requirements
 
@@ -57,3 +56,4 @@ Notifications indicate whether an operation completed successfully or failed.
 
 - Add the ability to browse only installed applications
 - Open app page in web browser
+
