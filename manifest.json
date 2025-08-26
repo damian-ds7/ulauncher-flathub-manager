@@ -5,7 +5,7 @@
     "developer_name": "damian-ds7",
     "icon": "images/icon.png",
     "options": {
-        "query_debounce": 1
+        "query_debounce": 0.75
     },
     "preferences": [
         {
