@@ -4,6 +4,7 @@ import logging
 import os
 import subprocess
 import tempfile
+import threading
 import urllib.request
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
@@ -18,6 +19,7 @@ from ulauncher.api.shared.action.RenderResultListAction import RenderResultListA
 from ulauncher.api.shared.action.RunScriptAction import RunScriptAction
 from ulauncher.api.shared.event import KeywordQueryEvent
 from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
+from ulauncher.api.shared.Response import Response
 
 ICON_CACHE_DIR = os.path.join(tempfile.gettempdir(), "ulauncher-flathub-icons")
 RESULTS_LIMIT_MIN = 2
@@ -25,6 +27,7 @@ RESULTS_LIMIT_DEFAULT = 6
 RESULTS_LIMIT_MAX = 20
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 SCRIPT_PATH = os.path.join(SCRIPT_DIR, "flatpak-helper.sh")
+DEBOUNCE_DELAY = 0.3  # 300ms debounce delay
 
 logger = logging.getLogger(__name__)
 executor = ThreadPoolExecutor(max_workers=6)
@@ -175,31 +178,17 @@ class FlathubSearchExtension(Extension):
 
     def __init__(self):
         super().__init__()
-        self.subscribe(KeywordQueryEvent, KeywordQueryEventListener())
+        self.subscribe(KeywordQueryEvent, FlathubSearchKeywordListener())
 
 
-class KeywordQueryEventListener(EventListener):
+class FlathubSearchKeywordListener(EventListener):
+    def __init__(self):
+        super().__init__()
+        self._debounce_timer: Optional[threading.Timer] = None
+        self._debounce_delay: float = 1
 
-    def on_event(self, event, extension):
+    def _run_search(self, extension, event, query: str, results_limit: int):
         items: list[ExtensionResultItem] = []
-        query: Optional[str] = (
-            event.get_argument().replace("%", "") if event.get_argument() else ""
-        )
-
-        results_limit_str: str = extension.preferences["results_limit"]
-        results_limit: int
-
-        try:
-            results_limit_str = results_limit_str.strip()
-            results_limit = int(results_limit_str)
-
-            if results_limit < RESULTS_LIMIT_MIN:
-                results_limit = RESULTS_LIMIT_MIN
-            elif results_limit > RESULTS_LIMIT_MAX:
-                results_limit = RESULTS_LIMIT_MAX
-        except Exception as e:
-            results_limit = RESULTS_LIMIT_DEFAULT
-
         try:
             search_results: list[FlathubApp] = search_flathub(query, results_limit)
             items = flathub_app_2_result_item(search_results)
@@ -211,8 +200,41 @@ class KeywordQueryEventListener(EventListener):
                     on_enter=HideWindowAction(),
                 )
             )
+        extension._client.send(Response(event, RenderResultListAction(items)))
 
-        return RenderResultListAction(items)
+    def on_event(self, event, extension):
+        query: str = (
+            event.get_argument().replace("%", "") if event.get_argument() else ""
+        )
+
+        results_limit_str: str = extension.preferences["results_limit"]
+        try:
+            results_limit = int(results_limit_str.strip())
+            results_limit = max(
+                min(results_limit, RESULTS_LIMIT_MAX), RESULTS_LIMIT_MIN
+            )
+        except Exception:
+            results_limit = RESULTS_LIMIT_DEFAULT
+
+        if self._debounce_timer and self._debounce_timer.is_alive():
+            self._debounce_timer.cancel()
+
+        self._debounce_timer = threading.Timer(
+            self._debounce_delay,
+            self._run_search,
+            args=(extension, event, query, results_limit),
+        )
+        self._debounce_timer.start()
+
+        return RenderResultListAction(
+            [
+                ExtensionResultItem(
+                    icon="images/icon.png",
+                    name="Searching...",
+                    on_enter=HideWindowAction(),
+                )
+            ]
+        )
 
 
 if __name__ == "__main__":
