@@ -5,7 +5,7 @@ ACTION=$1   # install | uninstall | update
 APP_ID=$2
 APP_NAME=$3
 
-ICON="$SCRIPT_PATH/images/icon.png"
+ICON="$SCRIPT_PATH/../../images/icon.png"
 
 if flatpak "$ACTION" -y "$APP_ID" >/dev/null; then
     if [[ "$ACTION" == "update" ]]; then
