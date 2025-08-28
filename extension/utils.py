@@ -21,43 +21,43 @@ def is_installed(app_id: str) -> bool:
     return not result.returncode
 
 
+def get_installed_actions(name: str, app_id: str) -> list[ExtensionResultItem]:
+    return [
+        ExtensionResultItem(
+            icon="images/update.jpg",
+            name="Update",
+            on_enter=RunScriptAction(f"{SCRIPT_PATH} update {app_id} {name}"),
+        ),
+        ExtensionResultItem(
+            icon="images/remove.png",
+            name="Uninstall",
+            on_enter=RunScriptAction(f"{SCRIPT_PATH} uninstall {app_id} {name}"),
+        ),
+    ]
+
+
+def get_not_installed_actions(name: str, app_id: str) -> list[ExtensionResultItem]:
+    return [
+        ExtensionResultItem(
+            icon="images/download.jpg",
+            name="Install",
+            on_enter=RunScriptAction(f"{SCRIPT_PATH} install {app_id} {name}"),
+        ),
+        ExtensionResultItem(
+            icon="images/icon.png",
+            name="Open in browser",
+            on_enter=OpenUrlAction(f"https://flathub.org/apps/{app_id}"),
+        ),
+    ]
+
+
 def get_result_actions(app: FlathubApp) -> list[ExtensionResultItem]:
     if is_installed(app.flatpak_app_id):
         logger.info(f"Generating actions for installed app - {app.name}")
-        return [
-            ExtensionResultItem(
-                icon="images/update.jpg",
-                name="Update",
-                on_enter=RunScriptAction(
-                    f"{SCRIPT_PATH} update {app.flatpak_app_id} {app.name}"
-                ),
-            ),
-            ExtensionResultItem(
-                icon="images/remove.png",
-                name="Uninstall",
-                on_enter=RunScriptAction(
-                    f"{SCRIPT_PATH} uninstall {app.flatpak_app_id} {app.name}"
-                ),
-            ),
-        ]
+        return get_installed_actions(app.name, app.flatpak_app_id)
     else:
         logger.info(f"Generating actions for non-installed app - {app.name}")
-        return [
-            ExtensionResultItem(
-                icon="images/download.jpg",
-                name="Install",
-                on_enter=RunScriptAction(
-                    f"{SCRIPT_PATH} install {app.flatpak_app_id} {app.name}"
-                ),
-            ),
-            ExtensionResultItem(
-                icon="images/icon.png",
-                name="Open in browser",
-                on_enter=OpenUrlAction(
-                    f"https://flathub.org/apps/{app.flatpak_app_id}"
-                ),
-            ),
-        ]
+        return get_not_installed_actions(app.name, app.flatpak_app_id)
 
 
 def flathub_app_2_result_item(apps: list[FlathubApp]) -> list[ExtensionResultItem]:
