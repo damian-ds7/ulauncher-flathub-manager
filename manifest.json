@@ -15,6 +15,12 @@
             "default_value": "fh"
         },
         {
+            "id": "local_kw",
+            "type": "keyword",
+            "name": "Installed Search",
+            "default_value": "fp"
+        },
+        {
             "id": "results_limit",
             "type": "input",
             "name": "Max number results to show",
