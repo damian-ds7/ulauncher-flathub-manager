@@ -35,6 +35,9 @@ class FlathubSearchKeywordListener(EventListener):
         extension._client.send(Response(event, RenderResultListAction(items)))
 
     def on_event(self, event, extension):
+        if event.get_keyword() != extension.preferences["flathub_kw"]:
+            return
+
         query: str = (
             event.get_argument().replace("%", "") if event.get_argument() else ""
         )
