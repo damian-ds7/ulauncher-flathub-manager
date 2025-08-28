@@ -52,12 +52,12 @@ def get_not_installed_actions(name: str, app_id: str) -> list[ExtensionResultIte
 
 
 def get_result_actions(app: FlathubApp) -> list[ExtensionResultItem]:
-    if is_installed(app.flatpak_app_id):
+    if is_installed(app.app_id):
         logger.info(f"Generating actions for installed app - {app.name}")
-        return get_installed_actions(app.name, app.flatpak_app_id)
+        return get_installed_actions(app.name, app.app_id)
     else:
         logger.info(f"Generating actions for non-installed app - {app.name}")
-        return get_not_installed_actions(app.name, app.flatpak_app_id)
+        return get_not_installed_actions(app.name, app.app_id)
 
 
 def flathub_app_2_result_item(apps: list[FlathubApp]) -> list[ExtensionResultItem]:
