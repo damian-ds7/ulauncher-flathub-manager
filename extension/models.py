@@ -10,18 +10,18 @@ class ShortQueryException(Exception):
 
 @dataclass
 class FlathubApp:
-    flatpak_app_id: str
+    app_id: str
     name: str
-    icon_desktop_url: str
+    icon_url: str
     icon_future: Optional[Future] = None
 
     @classmethod
     def from_dict(cls, data: dict) -> Optional["FlathubApp"]:
         try:
             return cls(
-                flatpak_app_id=data["flatpakAppId"],
+                app_id=data["flatpakAppId"],
                 name=data["name"],
-                icon_desktop_url=data["iconDesktopUrl"],
+                icon_url=data["iconDesktopUrl"],
             )
         except KeyError:
             return None

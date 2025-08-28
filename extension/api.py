@@ -26,9 +26,7 @@ def search_flathub(
                 data: list[dict[str, str]] = json.loads(response.read())
                 apps = FlathubApp.from_list(data[:results_limit])
                 for app in apps:
-                    app.icon_future = executor.submit(
-                        download_icon, app.icon_desktop_url
-                    )
+                    app.icon_future = executor.submit(download_icon, app.icon_url)
                 return apps
 
             return []
