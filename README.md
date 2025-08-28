@@ -51,7 +51,3 @@ Notifications indicate whether an operation completed successfully or failed.
   <br/>
   <sub><em>Remove notification</em></sub>
 </p>
-
-## TODO
-
-- Add the ability to browse only installed applications
