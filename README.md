@@ -8,7 +8,7 @@
 
 ## Requirements
 
-This extension requires [libnotify](https://gitlab.gnome.org/GNOME/libnotify), as it uses the `notify-send` command to display desktop notifications.
+This extension requires [libnotify](https://gitlab.gnome.org/GNOME/libnotify), as it uses the `notify-send` command to display desktop notifications and [fzf](https://junegunn.github.io/fzf/) to filter installed flatpaks
 
 ## Demo
 
